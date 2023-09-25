@@ -1,0 +1,284 @@
+using System;
+using System.Collections.Generic;
+
+namespace FoodOrderingSystem
+{
+    class Program
+    {
+        static string GenerateReceiptNumber()
+        {
+            // Generate a unique receipt number using current timestamp
+            return DateTime.Now.ToString("yyyyMMddHHmmss");
+        }
+        class FoodItem
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public double Price { get; set; }
+
+            public FoodItem(int id, string name, double price)
+            {
+                Id = id;
+                Name = name;
+                Price = price;
+            }
+        }
+
+        class OrderItem
+        {
+            public FoodItem FoodItem { get; set; }
+            public int Quantity { get; set; }
+
+            public OrderItem(FoodItem foodItem)
+            {
+                FoodItem = foodItem;
+                Quantity = 1; // Default quantity is 1
+            }
+        }
+
+        static List<FoodItem> GenerateMenu()
+        {
+            List<FoodItem> menu = new List<FoodItem>
+            {
+                new FoodItem(1, "Splash", 350),
+                new FoodItem(2, "Quench", 800),
+                new FoodItem(3, "Bubbly", 500),
+                new FoodItem(4, "Zest", 400),
+                new FoodItem(6, "Glaze", 450),
+                new FoodItem(7, "Froth", 650),
+                new FoodItem(8, "Zing", 690),
+                new FoodItem(9, "Swirl", 300),
+                new FoodItem(10, "Zest", 250)
+            };
+
+            return menu;
+        }
+
+        static void Main(string[] args)
+        {
+        orderagain:
+            Console.Clear();
+            string welcome = "Welcome to the Vila'chaos Resto!", wel = "Vila'chaos Resto invites you to indulge in a delightful world of juices ", wel2 = "that will awaken your taste buds and rejuvenate your senses";
+            Console.SetCursorPosition((Console.WindowWidth - wel.Length) / 2, Console.CursorTop + 10);
+            Console.WriteLine(wel);
+            Console.SetCursorPosition((Console.WindowWidth - wel2.Length) / 2, Console.CursorTop);
+            Console.WriteLine(wel2);
+            Console.Write("\n\n\n\n\n\nPlease enter any key to continue....");
+            Console.ReadKey();
+            Console.Clear();
+            List<FoodItem> menu = GenerateMenu();
+            Console.SetCursorPosition((Console.WindowWidth - welcome.Length) / 2, Console.CursorTop);
+            Console.WriteLine(welcome);
+            Console.SetCursorPosition((Console.WindowWidth - welcome.Length) / 2, Console.CursorTop);
+            Console.WriteLine("------------------------------------");
+            Console.SetCursorPosition((Console.WindowWidth - welcome.Length) / 2, Console.CursorTop);
+            Console.WriteLine("Menu:");
+
+            // Display the menu
+            foreach (FoodItem item in menu)
+            {
+                Console.SetCursorPosition((Console.WindowWidth - welcome.Length) / 2, Console.CursorTop);
+                Console.WriteLine("[" + item.Id + "] " + item.Name + " - " + item.Price + "  PHP");
+            }
+            Console.SetCursorPosition((Console.WindowWidth - welcome.Length) / 2, Console.CursorTop);
+            Console.WriteLine("------------------------------------");
+
+            // Start taking orders
+            List<OrderItem> order = new List<OrderItem>();
+
+            while (true)
+            {
+            invalid:
+                Console.SetCursorPosition((Console.WindowWidth - welcome.Length) / 2, Console.CursorTop);
+                Console.Write("Enter Item ID (0 to finish): ");
+                string convert = Console.ReadLine();
+                int itemId;
+                if (int.TryParse(convert, out itemId) == false)
+                {
+                    Console.SetCursorPosition((Console.WindowWidth - welcome.Length) / 2, Console.CursorTop);
+                    Console.WriteLine("Invalid item ID. Please try again.");
+                    goto invalid;
+                }
+
+
+
+                if (itemId == 0)
+                {
+                    break;
+                }
+
+                // Find the selected item from the menu
+                FoodItem selectedItem = menu.Find(item => item.Id == itemId);
+
+                if (selectedItem != null)
+                {
+                    OrderItem existingItem = order.Find(item => item.FoodItem.Id == itemId);
+                    if (existingItem != null)
+                    {
+                        existingItem.Quantity++;
+                    }
+                    else
+                    {
+                        OrderItem orderItem = new OrderItem(selectedItem);
+                        order.Add(orderItem);
+                    }
+
+                    Console.SetCursorPosition((Console.WindowWidth - welcome.Length) / 2, Console.CursorTop);
+                    Console.WriteLine("Added " + selectedItem.Name + " Successfully.");
+                }
+                else
+                {
+                    Console.SetCursorPosition((Console.WindowWidth - welcome.Length) / 2, Console.CursorTop);
+                    Console.WriteLine("Invalid item ID. Please try again.");
+                }
+            }
+
+            Console.Clear();
+
+            // Display the order summary
+            string centersummarry = "Order Summary", line = "------------------------------------", style = "| Quantity | Description |  Price  |";
+            Console.SetCursorPosition((Console.WindowWidth - line.Length) / 2, Console.CursorTop);
+            Console.WriteLine(line);
+            Console.SetCursorPosition((Console.WindowWidth - centersummarry.Length) / 2, Console.CursorTop);
+            Console.WriteLine(centersummarry);
+            Console.SetCursorPosition((Console.WindowWidth - line.Length) / 2, Console.CursorTop);
+            Console.WriteLine(line);
+            Console.SetCursorPosition((Console.WindowWidth - line.Length) / 2, Console.CursorTop);
+            Console.WriteLine(style);
+            Console.SetCursorPosition((Console.WindowWidth - line.Length) / 2, Console.CursorTop);
+            Console.WriteLine(line);
+
+            double total = 0;
+
+            foreach (OrderItem item in order)
+            {
+
+                Console.SetCursorPosition((Console.WindowWidth - style.Length) / 2, Console.CursorTop);
+                Console.WriteLine("\t" + item.Quantity + "\t" + item.FoodItem.Name + "\t\t" + item.FoodItem.Price * item.Quantity);
+                double itemTotal = item.Quantity * item.FoodItem.Price;
+                total += itemTotal;
+            }
+            double tax = total * 0.01;
+            double totalphp = total + tax;
+            DateTime currentDate = DateTime.Now.Date;
+            DateTime currentTime = DateTime.Now;
+            Console.SetCursorPosition((Console.WindowWidth - line.Length) / 2, Console.CursorTop);
+            Console.WriteLine(line);
+            Console.SetCursorPosition((Console.WindowWidth - centersummarry.Length) / 2, Console.CursorTop);
+            Console.WriteLine("SubTotal: \tPHP\t" + total);
+            Console.SetCursorPosition((Console.WindowWidth - centersummarry.Length) / 2, Console.CursorTop);
+            Console.WriteLine("Tax: \tPHP\t" + tax);
+            Console.SetCursorPosition((Console.WindowWidth - centersummarry.Length) / 2, Console.CursorTop);
+            Console.WriteLine("TOTAL: \tPHP\t" + totalphp);
+            Console.SetCursorPosition((Console.WindowWidth - line.Length) / 2, Console.CursorTop);
+            Console.WriteLine(line);
+
+            double totalMoney = 0.0;
+            do
+            {
+            invalid_1:
+                Console.SetCursorPosition((Console.WindowWidth - line.Length) / 2, Console.CursorTop);
+                Console.Write("Enter your total money: PHP ");
+                string converter = Console.ReadLine();
+
+
+                if (double.TryParse(converter, out totalMoney) == false)
+                {
+                    Console.SetCursorPosition((Console.WindowWidth - welcome.Length) / 2, Console.CursorTop);
+                    Console.WriteLine("Invalid Keywords!!");
+                    goto invalid_1;
+                }
+
+
+                if (totalMoney >= totalphp)
+                {
+                    Console.Clear();
+                    double change = totalMoney - totalphp;
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine("===========================================");
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine("              Vila'chaos Resto");
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine("        Purok 1 Villaflor, Oroquieta City");
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine("           Phone: 09461583522");
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine("         Website: www.VilachaosResto.com");
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine("===========================================");
+                    Console.WriteLine();
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine("Date: {0}", DateTime.Now.ToString("MM/dd/yyyy"));
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine("Receipt #: {0}", GenerateReceiptNumber());
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine("Cashier: Jamaica Mutia");
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine();
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine("-------------------------------------------");
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine("Quantity           Item              Price");
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine("-------------------------------------------");
+                    foreach (OrderItem item in order)
+                    {
+
+                        Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                        Console.WriteLine("    " + item.Quantity + "       " + item.FoodItem.Name + "\t\t" + item.FoodItem.Price * item.Quantity);
+                    }
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine("-------------------------------------------");
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine();
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine("Subtotal:                 " + total);
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine("Tax:                      " + tax);
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine("-------------------------------------------");
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine("Total:                    " + totalphp);
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine();
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine("Payment Method:           Cash");
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine("Amount Tendered:          " + totalMoney);
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine("Change:                   " + change);
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine();
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine("-------------------------------------------");
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine("THANK YOU FOR SHOPPING WITH US!");
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine();
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine("Please retain this receipt for your records.");
+                    Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+                    Console.WriteLine("===========================================");
+
+                }
+                else
+                {
+                    Console.SetCursorPosition((Console.WindowWidth - line.Length) / 2, Console.CursorTop);
+                    Console.WriteLine("Insufficient funds. Please try again.");
+                }
+            } while (totalMoney < totalphp);
+            Console.ReadKey();
+            Console.Clear();
+            Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+            Console.Write("Do you want to Order Again Press 'Y' and press any key to exit: ");
+            string again = Console.ReadLine();
+            if (again == "Y" || again == "y")
+                goto orderagain;
+
+
+            Console.SetCursorPosition((Console.WindowWidth - 43) / 2, Console.CursorTop);
+            Console.Write("Thanks for using Ordering System!!");
+            Console.ReadKey();
+        }
+    }
+}
